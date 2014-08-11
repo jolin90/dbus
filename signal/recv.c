@@ -18,7 +18,7 @@ static void listen_signal()
 	connection = dbus_bus_get(DBUS_BUS_SESSION, &err);
 	if(dbus_error_is_set(&err) || NULL == connection)
 	{
-		fprintf(stderr,"Connection Error %s/n",err.message);
+		fprintf(stderr,"Connection Error %s\n",err.message);
 		dbus_error_free(&err);
 		return;
 	}
@@ -27,7 +27,7 @@ static void listen_signal()
 			DBUS_NAME_FLAG_REPLACE_EXISTING,&err);
 	if(dbus_error_is_set(&err) || ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER)
 	{
-		fprintf(stderr,"Name Error %s/n",err.message);
+		fprintf(stderr,"Name Error %s\n",err.message);
 		dbus_error_free(&err);
 		return;
 	}
@@ -36,7 +36,7 @@ static void listen_signal()
 	dbus_connection_flush(connection);
 	if(dbus_error_is_set(&err))
 	{
-		fprintf(stderr,"Match Error %s/n",err.message);
+		fprintf(stderr,"Match Error %s\n",err.message);
 		dbus_error_free(&err);
 	}
 
@@ -53,9 +53,9 @@ static void listen_signal()
 		if (dbus_message_is_signal(msg, "test.signal.Type", "Test"))
 		{
 			if(!dbus_message_iter_init(msg,&arg) )
-				fprintf(stderr,"Message Has no Param");
+				fprintf(stderr, "Message Has no Param\n");
 			else if(dbus_message_iter_get_arg_type(&arg) != DBUS_TYPE_STRING)
-				printf("Param is not string");
+				printf("Param is not string\n");
 			else
 				dbus_message_iter_get_basic(&arg, &sigvalue);
 			printf("Got Singal with value : %s\n",sigvalue);

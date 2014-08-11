@@ -14,9 +14,9 @@ static void reply_to_method_call(DBusMessage *msg, DBusConnection *conn)
 	dbus_uint32_t serial = 0;
 
 	if (!dbus_message_iter_init(msg, &arg)) {
-		printf("Message has no args/n");
+		printf("Message has no args\n");
 	} else if (dbus_message_iter_get_arg_type(&arg) != DBUS_TYPE_STRING) {
-		printf("Arg is not string!/n");
+		printf("Arg is not string!\n");
 	} else {
 		dbus_message_iter_get_basic(&arg, &param);
 		if(param)
@@ -28,18 +28,18 @@ static void reply_to_method_call(DBusMessage *msg, DBusConnection *conn)
 
 	if(!dbus_message_iter_append_basic(&arg, DBUS_TYPE_BOOLEAN, &stat))
 	{
-		printf("Out of Memory!/n");
+		printf("Out of Memory!\n");
 		exit(1);
 	}
 
 	if(!dbus_message_iter_append_basic(&arg, DBUS_TYPE_UINT32, &level))
 	{
-		printf("Out of Memory!/n");
+		printf("Out of Memory!\n");
 		exit(1);
 	}
 
 	if(!dbus_connection_send(conn, reply, &serial)) {
-		printf("Out of Memory/n");
+		printf("Out of Memory\n");
 		exit(1);
 	}
 
@@ -61,14 +61,14 @@ static void listen_dbus()
 	connection = dbus_bus_get(DBUS_BUS_SESSION, &err);
 	if (dbus_error_is_set(&err) || NULL == connection)
 	{
-		fprintf(stderr,"Connection Error %s/n",err.message);
+		fprintf(stderr,"Connection Error %s\n",err.message);
 		dbus_error_free(&err);
 		return;
 	}
 
 	ret = dbus_bus_request_name(connection, "test.wei.dest", DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
 	if (dbus_error_is_set(&err) || ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-		fprintf(stderr,"Name Error %s/n",err.message);
+		fprintf(stderr,"Name Error %s\n",err.message);
 		dbus_error_free(&err);
 		return;
 	}
@@ -77,7 +77,7 @@ static void listen_dbus()
 	dbus_connection_flush(connection);
 
 	if(dbus_error_is_set(&err)){
-		fprintf(stderr,"Match Error %s/n",err.message);
+		fprintf(stderr,"Match Error %s\n",err.message);
 		dbus_error_free(&err);
 	}
 
@@ -95,9 +95,9 @@ static void listen_dbus()
 		if (dbus_message_is_signal(msg, "test.signal.Type", "Test")) {
 
 			if (!dbus_message_iter_init(msg, &arg)) {
-				fprintf(stderr, "Message Has no param");
+				fprintf(stderr, "Message Has no param\n");
 			} else if (dbus_message_iter_get_arg_type(&arg) != DBUS_TYPE_STRING) {
-				fprintf(stderr, "param is not string");
+				fprintf(stderr, "param is not string\n");
 			} else {
 				dbus_message_iter_get_basic(&arg,&sigvalue);
 			}
