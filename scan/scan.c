@@ -26,11 +26,38 @@ static DBusConnection *init_dbus()
 	return conn;
 }
 
+static void start_discovery_reply(DBusPendingCall *pcall,
+		void *user_data)
+{
+	DBusMessage *reply;
+	int type;
+
+	printf("%s %d\n", __func__, __LINE__);
+
+	reply = dbus_pending_call_steal_reply (pcall);
+	type = dbus_message_get_type (reply);
+
+	while(1)
+	{
+		if (type == DBUS_MESSAGE_TYPE_SIGNAL)
+		{
+			printf("%s %d get a signal\n", __func__, __LINE__);
+			break;
+		}
+		printf("%s %d\n", __func__, __LINE__);
+		sleep(1);
+	}
+
+	dbus_message_unref (reply);
+}
+
 static void start_discovery(DBusConnection *conn)
 {
 	DBusError err;
 	DBusMessage *msg;
 	DBusPendingCall *pending;
+
+	printf("%s %d\n", __func__, __LINE__);
 
 	dbus_error_init(&err);
 
@@ -38,22 +65,32 @@ static void start_discovery(DBusConnection *conn)
 			"StartDiscovery");
 	if (msg == NULL) {
 		printf("%s %d msg is null\n", __func__, __LINE__);
-		exit(1);
+		dbus_error_free(&err);
+		return;
 	}
 
 	if (!dbus_connection_send_with_reply(conn, msg, &pending, -1)) {
 		printf("Out of Memory!\n");
-		exit(1);
+		return;
 	}
 
 	if (pending == NULL) {
 		printf("Pending Call NULL: connection is disconnected\n");
 		dbus_message_unref(msg);
-		exit(1);
+		dbus_error_free(&err);
+		return;
 	}
 
 	dbus_connection_flush(conn);
 	dbus_message_unref(msg);
+
+	printf("%s %d\n", __func__, __LINE__);
+
+	if (!dbus_pending_call_set_notify(pending, start_discovery_reply, NULL, NULL))
+		printf("No memory\n");
+
+	printf("%s %d\n", __func__, __LINE__);
+	dbus_pending_call_unref(pending);
 
 	dbus_error_free(&err);
 }
@@ -101,19 +138,6 @@ static DBusMessage *excute_method_a(DBusConnection *conn, DBusMessage* msg)
 	return msg;
 }
 
-static void adapter_signal_property_changed(DBusMessage* msg)
-{
-	DBusMessageIter iter, subiter;
-	char *sName;
-	char *sValue;
-	int bValue;
-
-	dbus_message_iter_init(msg, &iter);
-	dbus_message_iter_get_basic(&iter, &sName);
-
-	// printf("%s %d name:%s\n", __func__, __LINE__, sName);
-}
-
 static void set_property(DBusConnection *conn, const char *name, struct ADAPTER_PROPERTIES *p)
 {
 	DBusError err;
@@ -143,23 +167,35 @@ static void set_property(DBusConnection *conn, const char *name, struct ADAPTER_
 		// printf("SynergyDBusAdapter::SetProperty('%s', %s)\n", name, p->Name);
 		strcpy(s, p->Name);
 		append_variant(&iter, DBUS_TYPE_STRING, &s);
-	} else if (!strcmp(name, "Powered")) {
+	}
+	else if (!strcmp(name, "Powered"))
+	{
 		// printf("SynergyDBusAdapter::SetProperty('%s', %d)\n", name, p->Powered);
 		append_variant(&iter, DBUS_TYPE_BOOLEAN, &p->Powered);
-	} else if (!strcmp(name, "DiscoverableTimeout")) {
+	}
+	else if (!strcmp(name, "DiscoverableTimeout"))
+	{
 		// printf("SynergyDBusAdapter::SetProperty('%s', %d)\n", name, p->DiscoverableTimeout);
 		append_variant(&iter, DBUS_TYPE_UINT32, &p->DiscoverableTimeout);
-	} else if (!strcmp(name, "Discoverable")) {
+	}
+	else if (!strcmp(name, "Discoverable"))
+	{
 		// printf("SynergyDBusAdapter::SetProperty('%s', %d)\n", name, p->Discoverable);
 		append_variant(&iter, DBUS_TYPE_BOOLEAN, &p->Discoverable);
-	} else if (!strcmp(name, "PairableTimeout")) {
+	}
+	else if (!strcmp(name, "PairableTimeout"))
+	{
 		// printf("SynergyDBusAdapter::SetProperty('%s', %d)\n", name, p->PairableTimeout);
 		append_variant(&iter, DBUS_TYPE_UINT32, &p->PairableTimeout);
-	} else if (!strcmp(name, "Pairable")) {
+	}
+	else if (!strcmp(name, "Pairable"))
+	{
 		// printf("SynergyDBusAdapter::SetProperty('%s', %d)\n", name, p->Pairable);
 		append_variant(&iter, DBUS_TYPE_BOOLEAN, &p->Pairable);
-	} else {
-		printf("SynergyDBusAdapter::SetProperty('%s') is not supported, %d)\n", name);
+	}
+	else
+	{
+		printf("SynergyDBusAdapter::SetProperty('%s') is not supported)\n", name);
 		dbus_connection_flush(conn);
 		dbus_message_unref(msg);
 		exit(1);
@@ -184,7 +220,7 @@ static void get_properties(DBusConnection *conn)
 	char value[255];
 	char *ckey;
 	char *cValue;
-	int i = 0;
+	// int i = 0;
 
 	dbus_error_init(&err);
 
@@ -201,7 +237,8 @@ static void get_properties(DBusConnection *conn)
 	dbus_message_iter_init(msg, &iter);
 	dbus_message_iter_recurse(&iter, &dict);
 
-	do{
+	do
+	{
 		memset(key, 0, 255);
 		memset(value, 0, 255);
 
@@ -290,7 +327,7 @@ static void get_properties(DBusConnection *conn)
 				continue;
 			}
 
-			i = 0;
+			// i = 0;
 			do
 			{
 				dbus_message_iter_get_basic(&device_array, &cValue);
@@ -331,7 +368,7 @@ int main(int argc, char *argv[])
 
 	p = (struct ADAPTER_PROPERTIES *)malloc(sizeof(struct ADAPTER_PROPERTIES));
 	p->DiscoverableTimeout = 0;
-	p->PairableTimeout = 3;
+	p->PairableTimeout = 0;
 	p->Pairable = true;
 	p->Discoverable = true;
 	set_property(conn, "DiscoverableTimeout", p);
@@ -341,6 +378,10 @@ int main(int argc, char *argv[])
 	free(p);
 
 	get_properties(conn);
+
+	printf("%s %d\n", __func__, __LINE__);
+	start_discovery(conn);
+	printf("%s %d\n", __func__, __LINE__);
 
 	return 0;
 }

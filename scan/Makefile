@@ -5,11 +5,11 @@ CFLAGS += -I $(SYSTEM_ROOT)/usr/lib/dbus-1.0/include
 
 LD_FLAGS = -ldbus-1 -lpthread -L $(SYSTEM_ROOT)/usr/lib
 
-#CFLAGS += -Wall -I.  
+CFLAGS += -Wall -I.
 CC = /opt/csr-linux-x86/toolchain/gcc-linaro-arm-linux-gnueabihf-4.8-2013.05_linux/bin/arm-linux-gnueabihf-gcc
 
 OUT 	:= out
-BIN 	:= scan
+BIN 	:= scan recv
 
 SRCS 	= $(BIN:%=%.c)
 OBJS 	= $(SRCS:%.c=out/%.o)
