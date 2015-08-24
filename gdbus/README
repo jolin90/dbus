@@ -2,3 +2,18 @@ gdbus-codegen --generate-c-code myapp-generated --c-namespace MyApp --interface-
 
 dbus-send --session --type=method_call --print-reply --dest=net.Corp.MyApp.Frobber /net/Corp/MyApp/Frobber net.Corp.MyApp.Frobber.HelloWorld string:"hello world" 
 
+
+sudo apt-get install libglib2.0-dev -y
+sudo apt-get install gobject-introspection -y
+
+sudo apt-get update
+sudo apt-get install vim -y
+sudo apt-get install ctags cscope unzip -y
+sudo apt-get install dos2unix -y
+sudo apt-get install cmake -y
+sudo apt-get install g++ -y
+sudo apt-get install git -y
+sudo apt-get install tree -y
+
+sudo apt-get install libudev-dev -y
+sudo apt-get install libusb-1.0-0-dev -y

@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     GMainLoop *mainLoop;
     guint owner_id = 0;
 
-    g_type_init();
+    // g_type_init();
 
     myAppObject = my_app_net_corp_my_app_frobber_skeleton_new();
 

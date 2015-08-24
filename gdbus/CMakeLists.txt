@@ -4,6 +4,7 @@
 PROJECT (MAIN)
 SET(OUT_BIN jolin-server)
 
+set(CMAKE_VERBOSE_MAKEFILE true)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src SRC_DIR)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/gen GEN_DIR)
 
@@ -11,11 +12,12 @@ SET(SRC_LIST  ${SRC_DIR} ${GEN_DIR})
 
 ADD_DEFINITIONS(-O2 -Wall)
 
-INCLUDE_DIRECTORIES(./include/)
-INCLUDE_DIRECTORIES(./gen/)
-INCLUDE_DIRECTORIES(/usr/include/glib-2.0)
-INCLUDE_DIRECTORIES(/usr/lib/i386-linux-gnu/glib-2.0/include)
-INCLUDE_DIRECTORIES(/usr/include/gio-unix-2.0/)
+include_directories(/usr/include/glib-2.0)
+include_directories(/usr/include/gio-unix-2.0)
+include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
+
+INCLUDE_DIRECTORIES(include)
+INCLUDE_DIRECTORIES(gen)
 
 LINK_DIRECTORIES(/usr/lib)
 ADD_EXECUTABLE(${OUT_BIN} ${SRC_LIST})
