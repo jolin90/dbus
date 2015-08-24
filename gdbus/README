@@ -1,0 +1,4 @@
+gdbus-codegen --generate-c-code myapp-generated --c-namespace MyApp --interface-prefix net.corp.MyApp. Frobber.xml
+
+dbus-send --session --type=method_call --print-reply --dest=net.Corp.MyApp.Frobber /net/Corp/MyApp/Frobber net.Corp.MyApp.Frobber.HelloWorld string:"hello world" 
+
